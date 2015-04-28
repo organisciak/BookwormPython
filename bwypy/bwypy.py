@@ -84,7 +84,6 @@ class Bwypy:
         # query['method'] = 'return_json' # BREAKS CALLS TO self.fields()
         f = urllib.urlopen("%s?queryTerms=%s" % (self.endpoint,
                                                  json.dumps(query)))
-        logging.debug(f.read())
         response = json.loads(f.read())
         if type == "pandas":
             response = pd.DataFrame(response)
