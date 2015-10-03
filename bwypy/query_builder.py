@@ -30,6 +30,11 @@ class QueryBuilder:
 
     def __init__(self, fields):
         self.query = { "groups": [], "search_limits": []}
+        # hard-code word field
+        # This isn't the best way to do this, because some Bookworms
+        # may not have full text
+        if not 'word' in fields:
+            fields = ['word'] + fields
         for field in fields:
             if hasattr(self, field):
                 print "%s conflicts with a built in attribute, renaming to %s_bw" % (field, field)
@@ -41,7 +46,7 @@ class QueryBuilder:
     def __getitem__(self, *args):
         self.query['search_limits'] = list(args)
         return self
-    
+
     def search_limits(self, *args):
         lims = self._limits(*args)
         if type(lims) is not list:
