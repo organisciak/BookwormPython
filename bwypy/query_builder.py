@@ -25,22 +25,28 @@ class Field:
     def grep(self, regex):
         return FieldDict({self.name: {"$grep": regex}}) 
 
+''' Custom word class, because 'word' does not seem
+to be treated consistently like other fields.
+'''
+class WordField(Field):
+    def __init__(self):
+        Field.__init__(self, 'word')
+
+    def __eq__(self, obj):
+        return FieldDict({self.name: obj})
 
 class QueryBuilder:
 
     def __init__(self, fields):
         self.query = { "groups": [], "search_limits": []}
-        # hard-code word field
-        # This isn't the best way to do this, because some Bookworms
-        # may not have full text
-        if not 'word' in fields:
-            fields = ['word'] + fields
         for field in fields:
             if hasattr(self, field):
                 print "%s conflicts with a built in attribute, renaming to %s_bw" % (field, field)
                 field = field + "_bw"
             a = Field(field)
             setattr(self, field, a)
+
+        self.word = WordField()
     
     ''' Overload square brackets '''
     def __getitem__(self, *args):
