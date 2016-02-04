@@ -1,2 +1,2 @@
-from bwypy import Bwypy
-from query_builder import *
+from bwypy.bwypy import *
+from bwypy.query_builder import *

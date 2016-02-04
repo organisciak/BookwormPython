@@ -4,7 +4,6 @@ import logging
 import time
 import urllib
 
-
 class Bwypy:
     default = {"database": "", "search_limits": [],
                "words_collation": "Case_Sensitive", "compare_limits": [],
