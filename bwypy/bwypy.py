@@ -81,9 +81,15 @@ class Bwypy:
         start = time.time()
         # Regardless of how the query is provided, coerce to 'return_json'
         # query['method'] = 'return_json' # BREAKS CALLS TO self.fields()
-        f = urllib.urlopen("%s?queryTerms=%s" % (self.endpoint,
-                                                 json.dumps(query)))
-        response = json.loads(f.read())
+        qurl = "%s?queryTerms=%s" % (self.endpoint, json.dumps(query))
+        try:
+            f = urllib.urlopen(qurl)
+            response = json.loads(f.read())
+        except:
+            # Python 3, being lazy here
+            import requests
+            r = requests.get(qurl, verify=False)
+            response = r.json()
         if type == "pandas":
             response = pd.DataFrame(response)
         elif type == "json":

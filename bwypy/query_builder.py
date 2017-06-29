@@ -69,7 +69,10 @@ class QueryBuilder:
 
     def _limits(self, *args):
         # Merge all the individual FieldDicts
-        return reduce(lambda x, y: x+y, args)
+        merged = args[0]
+        for arg in args[1:]:
+            merged += arg
+        return merged
 
     def groups(self, *fields):
         self.query['groups'] = []
