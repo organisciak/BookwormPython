@@ -147,12 +147,12 @@ class BWQuery:
                 raise KeyError("The following search_limit fields are not supported in this BW: %s" % ", ".join(badgroups))
         
     @property
-    def count_type(self):
+    def counttype(self):
         return self.json['counttype']
     
-    @count_type.setter
-    def count_type(self, value):
-        self.json['count_type'] = value
+    @counttype.setter
+    def counttype(self, value):
+        self.json['counttype'] = value
 
     def fields(self):
         '''
@@ -242,10 +242,10 @@ class BWResults:
             self.groups = query['groups']
         else:
             self.groups = [query['groups']]
-        self.count_type = query['counttype']
+        self.counttype = query['counttype']
         self.dtypes = dtypes
     
-    def dataframe(self, index=True):
+    def frame(self, index=True):
         df = pd.DataFrame(self.tolist())
         
         for k,v in self.dtypes.items():
@@ -258,7 +258,11 @@ class BWResults:
         if len(self.groups) > 0 and index:
             return df.set_index(self.groups)
         else:
-            return df[self.groups + self.count_type]
+            return df[self.groups + self.counttype]
+        
+    def dataframe(self, **args):
+        ''' Alias for frame '''
+        return self.frame(**args)
     
     def json(self):
         return self._json
@@ -278,7 +282,7 @@ class BWResults:
     
     def tolist(self):
         ''' Return a list of key value pairs for each count'''
-        return self._expand(self._json, self.groups, self.count_type)
+        return self._expand(self._json, self.groups, self.counttype)
     
     def _expand(self, o, grouplist, counttypes, collector=[]):
         '''
