@@ -1,4 +1,7 @@
-import json
+try:
+    import ujson as jsonlib
+except:
+    import json as jsonlib
 import pandas as pd
 import logging
 import time
@@ -81,10 +84,10 @@ class Bwypy:
         start = time.time()
         # Regardless of how the query is provided, coerce to 'return_json'
         # query['method'] = 'return_json' # BREAKS CALLS TO self.fields()
-        qurl = "%s?queryTerms=%s" % (self.endpoint, json.dumps(query))
+        qurl = "%s?queryTerms=%s" % (self.endpoint, jsonlib.dumps(query))
         try:
             f = urllib.urlopen(qurl)
-            response = json.loads(f.read())
+            response = jsonlib.loads(f.read())
         except:
             # Python 3, being lazy here
             import requests
