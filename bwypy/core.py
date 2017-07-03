@@ -242,10 +242,14 @@ class BWResults:
             self.groups = query['groups']
         else:
             self.groups = [query['groups']]
-        self.counttype = query['counttype']
+            
+        if type(query['counttype']) is list:
+            self.counttype = query['counttype']
+        else:
+            self.counttype = [query['counttype']]
         self.dtypes = dtypes
     
-    def frame(self, index=True):
+    def frame(self, index=True, sort=False):
         df = pd.DataFrame(self.tolist())
         
         for k,v in self.dtypes.items():
@@ -256,9 +260,9 @@ class BWResults:
                     df[k] = pd.to_datetime(df[k])
     
         if len(self.groups) > 0 and index:
-            return df.set_index(self.groups)
+            return df.set_index(self.groups).sort_values(self.counttype, ascending=False)
         else:
-            return df[self.groups + self.counttype]
+            return df[self.groups + self.counttype].sort_values(self.counttype, ascending=False)
         
     def dataframe(self, **args):
         ''' Alias for frame '''
