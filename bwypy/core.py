@@ -228,7 +228,7 @@ class BWQuery:
         except:
             # Python 3, being lazy here
             import requests
-            r = requests.get(qurl, verify=False)
+            r = requests.get(qurl, verify=True)
             response = r.json()
         logging.debug("Query time: %ds" % (time.time()-start))
         return response
