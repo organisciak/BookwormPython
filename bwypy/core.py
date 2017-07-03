@@ -238,7 +238,7 @@ class BWResults:
 
     def __init__(self, results, query, dtypes={}):
         self._json = results
-        if type(query['groups']) is dict:
+        if type(query['groups']) is list:
             self.groups = query['groups']
         else:
             self.groups = [query['groups']]
