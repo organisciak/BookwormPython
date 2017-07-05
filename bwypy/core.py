@@ -249,7 +249,7 @@ class BWResults:
             self.counttype = [query['counttype']]
         self.dtypes = dtypes
     
-    def frame(self, index=True, drop_zeros=False):
+    def frame(self, index=True, drop_zeros=False, drop_unknowns=False):
         df = pd.DataFrame(self.tolist())
         
         for k,v in self.dtypes.items():
@@ -258,16 +258,27 @@ class BWResults:
                     df[k] = pd.to_numeric(df[k])
                 elif v == 'datetime':
                     df[k] = pd.to_datetime(df[k])
-    
+                    
+        # Drop unknown values
+        if drop_unknowns:
+            blacklist = ["No place, unknown, or undetermined", "", " ", "Unknown",
+             "Unknown or not specified", "No attempt to code", "Undetermined", "|||",
+             "???", "N/A", "unk"]
+            df = df[~df.T.isin(blacklist).any()]
+        
+        # Set index
         if len(self.groups) > 0 and index:
             df2 = df.set_index(self.groups)
         else:
             df2 = df[self.groups + self.counttype]
         
+        # Drop rows with zero for any count type
         if drop_zeros:
-            return df2[(df2.T != 0).any()].sort_values(self.counttype, ascending=False)
+            df3 = df2[(df2.T != 0).any()].sort_values(self.counttype, ascending=False)
         else:
-            return df2.sort_values(self.counttype, ascending=False)
+            df3 = df2.sort_values(self.counttype, ascending=False)
+        
+        return df3
         
     def dataframe(self, **args):
         ''' Alias for frame '''
