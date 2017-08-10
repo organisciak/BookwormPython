@@ -142,7 +142,7 @@ class BWQuery:
         
     def _validate_search_limits(self, value):
         if self._fields is not None:
-            badgroups = np.setdiff1d(list(value.keys()), self._fields['name'].tolist() + ['word'])
+            badgroups = np.setdiff1d(list(value.keys()), self._fields['name'].tolist() + (self.fields()['name'] + '__id').tolist() + ['word'])
             if len(badgroups) > 0:
                 raise KeyError("The following search_limit fields are not supported in this BW: %s" % ", ".join(badgroups))
         
