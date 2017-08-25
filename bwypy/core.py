@@ -259,7 +259,7 @@ class BWResults:
         self.dtypes = dtypes
         
         # Results don't care about leading '*'
-        self.groups = [g[1:] for g in self.groups if g.startswith('*')]
+        self.groups = [g.lstrip("*") for g in self.groups]
     
     def frame(self, index=True, drop_zeros=False, drop_unknowns=False):
         df = pd.DataFrame(self.tolist())
