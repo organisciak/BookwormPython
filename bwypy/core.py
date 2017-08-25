@@ -116,7 +116,12 @@ class BWQuery:
             
     def _validate_groups(self, value):
         if self._fields is not None:
-            badgroups = np.setdiff1d(value, self._fields['name'])
+            accepted = (self._fields['name'].tolist() +
+                    (self._fields['name'] + '__id').tolist() +
+                    ('*' + self._fields['name']).tolist() +
+                    ('*' + self._fields['name'] + '__id').tolist()
+                    )
+            badgroups = np.setdiff1d(value, accepted)
             if len(badgroups) > 0:
                 raise KeyError("The following groups are not supported in this BW: %s" % ", ".join(badgroups))
         
@@ -142,7 +147,11 @@ class BWQuery:
         
     def _validate_search_limits(self, value):
         if self._fields is not None:
-            badgroups = np.setdiff1d(list(value.keys()), self._fields['name'].tolist() + ['word'])
+            accepted = (self._fields['name'].tolist() +
+                    (self._fields['name'] + '__id').tolist() +
+                    ['word']
+                    )
+            badgroups = np.setdiff1d(list(value.keys()), accepted)
             if len(badgroups) > 0:
                 raise KeyError("The following search_limit fields are not supported in this BW: %s" % ", ".join(badgroups))
         
@@ -248,6 +257,9 @@ class BWResults:
         else:
             self.counttype = [query['counttype']]
         self.dtypes = dtypes
+        
+        # Results don't care about leading '*'
+        self.groups = [g[1:] for g in self.groups if g.startswith('*')]
     
     def frame(self, index=True, drop_zeros=False, drop_unknowns=False):
         df = pd.DataFrame(self.tolist())
