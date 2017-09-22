@@ -82,7 +82,7 @@ class BWQuery:
         Check for proper formatting
         '''
         try:
-            if self.json['method'] != "return_json":
+            if self.json['method'] not in ["return_json", "return_books", "search_results"]:
                 logging.warn('Ignoring custom method argument. Results are parsable in various formats')
                 self.json['method'] = "return_json"
 
@@ -154,6 +154,10 @@ class BWQuery:
             badgroups = np.setdiff1d(list(value.keys()), accepted)
             if len(badgroups) > 0:
                 raise KeyError("The following search_limit fields are not supported in this BW: %s" % ", ".join(badgroups))
+                
+        if ('word' in value) and type(value['word']) is not list:
+            raise TypeError("word value needs to be a list, even if there is only one word.")
+            
         
     @property
     def counttype(self):
@@ -180,17 +184,21 @@ class BWQuery:
         self._validate()
         self._runtime_validate()
             
-        logging.debug("Running " + jsonlib.encode(self.json))
+        logging.debug("Running " + jsonlib.dumps(self.json))
         json_response = self._fetch(self.json)
         
         return BWResults(json_response, self.json, self._dtypes)
 
-    def field_values(self, field):
+    def field_values(self, field, max=None):
         ''' Return all possible values for a field. '''
         if field not in self._field_cache:
             q = copy.deepcopy(self.default)
             q['database'] = self.database
-            q['groups'] = field
+            if max is not None:
+                q['search_limits'] = { field+'__id': { '$lt' : max+1} }
+                q['groups'] = '*'+field
+            else:
+                q['groups'] = field
             json_response = self._fetch(q)
             values = (BWResults(json_response, q).dataframe()
                             .sort_values('TextCount', ascending=False)
@@ -270,6 +278,8 @@ class BWResults:
                     df[k] = pd.to_numeric(df[k])
                 elif v == 'datetime':
                     df[k] = pd.to_datetime(df[k])
+                #elif v == 'character':
+                #    df[k] = df[k].str.encode('utf8','replace')
                     
         # Drop unknown values
         if drop_unknowns:
