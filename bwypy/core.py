@@ -31,7 +31,7 @@ class BWQuery:
                "method": "return_json",
                "counttype": ["TextCount", "WordCount"], "groups": []}
 
-    def __init__(self, json=None, endpoint=None, database=None, verify_fields=True):
+    def __init__(self, json=None, endpoint=None, database=None, verify_fields=True, verify_cert=True):
         '''
         verify_fields: Whether to ask the server for the allowable fields and
             verify later calls accordingly. Turn this offer for a performance
@@ -45,6 +45,8 @@ class BWQuery:
         # Explicit data type definition
         self._dtypes = {}
         self._field_cache = {}
+        # Allow turning off SSL verification if there are cert issues
+        self._verify_cert = verify_cert
         
         if json:
             if type(json) == dict:
@@ -245,7 +247,7 @@ class BWQuery:
         except:
             # Python 3, being lazy here
             import requests
-            r = requests.get(qurl, verify=True)
+            r = requests.get(qurl, verify=self._verify_cert)
             response = r.json()
         logging.debug("Query time: %ds" % (time.time()-start))
         return response
