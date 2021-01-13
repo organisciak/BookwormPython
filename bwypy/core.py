@@ -27,8 +27,9 @@ class set_options(object):
 
 class BWQuery:
     default = {"search_limits": {},
-               "words_collation": "Case_Sensitive", "compare_limits": [],
-               "method": "return_json",
+               "words_collation": "Case_Sensitive",
+               "method": "data",
+               "format":"json",
                "counttype": ["TextCount", "WordCount"], "groups": []}
 
     def __init__(self, json=None, endpoint=None, database=None, verify_fields=True, verify_cert=True):
@@ -84,9 +85,9 @@ class BWQuery:
         Check for proper formatting
         '''
         try:
-            if self.json['method'] not in ["return_json", "return_books", "search_results"]:
+            if self.json['method'] not in ["data"]:
                 logging.warn('Ignoring custom method argument. Results are parsable in various formats')
-                self.json['method'] = "return_json"
+                self.json['method'] = "data"
 
             for prop in ['groups', 'search_limits']:
                 validate_func = getattr(self, '_validate_' + prop)(getattr(self, prop))
@@ -189,7 +190,7 @@ class BWQuery:
         logging.debug("Running " + jsonlib.dumps(self.json))
         json_response = self._fetch(self.json)
         
-        return BWResults(json_response, self.json, self._dtypes)
+        return BWResults(json_response['data'], self.json, self._dtypes)
 
     def field_values(self, field, max=None):
         ''' Return all possible values for a field. '''
